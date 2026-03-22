@@ -17,10 +17,10 @@ final class RetailerResourceTest extends MockHttpTestCase
             ])),
         ]);
 
-        $page = $this->client->retailers()->list();
+        $result = $this->client->retailers()->list();
 
-        $this->assertCount(1, $page->items);
-        $this->assertSame('RET-001', $page->items[0]->reference);
+        $this->assertCount(1, $result->data);
+        $this->assertSame('RET-001', $result->data[0]->reference);
     }
 
     public function testGetRetailer(): void

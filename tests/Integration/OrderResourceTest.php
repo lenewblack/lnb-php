@@ -18,10 +18,10 @@ final class OrderResourceTest extends MockHttpTestCase
             ])),
         ]);
 
-        $page = $this->client->orders()->list(status: 'confirmed');
+        $result = $this->client->orders()->list(status: 'confirmed');
 
-        $this->assertCount(2, $page->items);
-        $this->assertSame('ORD-001', $page->items[0]->reference);
+        $this->assertCount(2, $result->data);
+        $this->assertSame('ORD-001', $result->data[0]->reference);
     }
 
     public function testGetOrder(): void

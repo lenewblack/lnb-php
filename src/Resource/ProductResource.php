@@ -6,16 +6,16 @@ namespace LeNewBlack\Wholesale\Resource;
 
 use LeNewBlack\Wholesale\Http\Paginator;
 use LeNewBlack\Wholesale\Model\Batch\BatchResponse;
-use LeNewBlack\Wholesale\Model\Page;
 use LeNewBlack\Wholesale\Model\Product\Product;
 use LeNewBlack\Wholesale\Model\Product\SetProductRequest;
 use LeNewBlack\Wholesale\Model\Product\SetVariantAltRequest;
 use LeNewBlack\Wholesale\Model\Product\VariantExtended;
+use LeNewBlack\Wholesale\Model\ResultSet;
 
 final class ProductResource extends AbstractResource
 {
     /**
-     * @return Page<Product>
+     * @return ResultSet<Product>
      */
     public function list(
         int $page = 1,
@@ -23,18 +23,17 @@ final class ProductResource extends AbstractResource
         ?string $models = null,
         ?string $sales_catalog_code = null,
         ?string $from = null,
-    ): Page {
-        $query = array_filter([
-            'page' => $page,
+    ): ResultSet {
+        $filters = array_filter([
             'collection_code' => $collection_code,
             'models' => $models,
             'sales_catalog_code' => $sales_catalog_code,
             'from' => $from,
         ], fn ($v) => $v !== null);
 
-        $data = $this->authenticatedGet('/products', $query);
+        $response = $this->authenticatedGetPaged('/products', array_merge(['page' => $page], $filters));
 
-        return Page::fromArray($data, Product::fromArray(...), 500, $page);
+        return ResultSet::fromPagedResponse($response, Product::fromArray(...), $page, 500, $filters);
     }
 
     public function get(string $model): Product

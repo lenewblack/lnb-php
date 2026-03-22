@@ -16,10 +16,10 @@ final class AuthFlowTest extends MockHttpTestCase
             ])),
         ]);
 
-        $page = $this->client->collections()->list();
+        $result = $this->client->collections()->list();
 
-        $this->assertCount(1, $page->items);
-        $this->assertSame('SS25', $page->items[0]->code);
+        $this->assertCount(1, $result->data);
+        $this->assertSame('SS25', $result->data[0]->code);
 
         // First request is auth, second is the actual API call
         $this->assertCount(2, $this->requestHistory);

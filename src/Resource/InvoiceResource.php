@@ -6,17 +6,17 @@ namespace LeNewBlack\Wholesale\Resource;
 
 use LeNewBlack\Wholesale\Http\Paginator;
 use LeNewBlack\Wholesale\Model\Invoice\Invoice;
-use LeNewBlack\Wholesale\Model\Page;
+use LeNewBlack\Wholesale\Model\ResultSet;
 
 final class InvoiceResource extends AbstractResource
 {
     /**
-     * @return Page<Invoice>
+     * @return ResultSet<Invoice>
      */
-    public function list(int $page = 1): Page
+    public function list(int $page = 1): ResultSet
     {
-        $data = $this->authenticatedGet('/invoices', ['page' => $page]);
-        return Page::fromArray($data, Invoice::fromArray(...), 500, $page);
+        $response = $this->authenticatedGetPaged('/invoices', ['page' => $page]);
+        return ResultSet::fromPagedResponse($response, Invoice::fromArray(...), $page, 500);
     }
 
     public function get(string $reference_number): Invoice

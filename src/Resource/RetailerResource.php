@@ -6,19 +6,19 @@ namespace LeNewBlack\Wholesale\Resource;
 
 use LeNewBlack\Wholesale\Http\Paginator;
 use LeNewBlack\Wholesale\Model\Batch\BatchResponse;
-use LeNewBlack\Wholesale\Model\Page;
+use LeNewBlack\Wholesale\Model\ResultSet;
 use LeNewBlack\Wholesale\Model\Retailer\Retailer;
 use LeNewBlack\Wholesale\Model\Retailer\SetRetailerRequest;
 
 final class RetailerResource extends AbstractResource
 {
     /**
-     * @return Page<Retailer>
+     * @return ResultSet<Retailer>
      */
-    public function list(int $page = 1): Page
+    public function list(int $page = 1): ResultSet
     {
-        $data = $this->authenticatedGet('/retailers', ['page' => $page]);
-        return Page::fromArray($data, Retailer::fromArray(...), 500, $page);
+        $response = $this->authenticatedGetPaged('/retailers', ['page' => $page]);
+        return ResultSet::fromPagedResponse($response, Retailer::fromArray(...), $page, 500);
     }
 
     public function get(string $reference): Retailer

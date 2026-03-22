@@ -9,12 +9,12 @@ use LeNewBlack\Wholesale\Model\Order\Order;
 use LeNewBlack\Wholesale\Model\Order\SetArchiveOrderRequest;
 use LeNewBlack\Wholesale\Model\Order\SetOrderRequest;
 use LeNewBlack\Wholesale\Model\Order\SetOrderStatusRequest;
-use LeNewBlack\Wholesale\Model\Page;
+use LeNewBlack\Wholesale\Model\ResultSet;
 
 final class OrderResource extends AbstractResource
 {
     /**
-     * @return Page<Order>
+     * @return ResultSet<Order>
      */
     public function list(
         int $page = 1,
@@ -25,9 +25,8 @@ final class OrderResource extends AbstractResource
         ?string $update_time_from = null,
         ?string $update_time_to = null,
         ?string $status = null,
-    ): Page {
-        $query = array_filter([
-            'page' => $page,
+    ): ResultSet {
+        $filters = array_filter([
             'order_time_from' => $order_time_from,
             'order_time_to' => $order_time_to,
             'confirmation_time_from' => $confirmation_time_from,
@@ -37,9 +36,9 @@ final class OrderResource extends AbstractResource
             'status' => $status,
         ], fn ($v) => $v !== null);
 
-        $data = $this->authenticatedGet('/orders', $query);
+        $response = $this->authenticatedGetPaged('/orders', array_merge(['page' => $page], $filters));
 
-        return Page::fromArray($data, Order::fromArray(...), 500, $page);
+        return ResultSet::fromPagedResponse($response, Order::fromArray(...), $page, 500, $filters);
     }
 
     public function get(string $reference): Order

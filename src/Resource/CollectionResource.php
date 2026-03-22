@@ -8,12 +8,12 @@ use LeNewBlack\Wholesale\Http\Paginator;
 use LeNewBlack\Wholesale\Model\Batch\BatchResponse;
 use LeNewBlack\Wholesale\Model\Collection\Collection;
 use LeNewBlack\Wholesale\Model\Collection\SetCollectionRequest;
-use LeNewBlack\Wholesale\Model\Page;
+use LeNewBlack\Wholesale\Model\ResultSet;
 
 final class CollectionResource extends AbstractResource
 {
     /**
-     * @return Page<Collection>
+     * @return ResultSet<Collection>
      */
     public function list(
         int $page = 1,
@@ -21,18 +21,17 @@ final class CollectionResource extends AbstractResource
         ?string $code = null,
         ?string $status = null,
         ?string $season = null,
-    ): Page {
-        $query = array_filter([
-            'page' => $page,
+    ): ResultSet {
+        $filters = array_filter([
             'name' => $name,
             'code' => $code,
             'status' => $status,
             'season' => $season,
         ], fn ($v) => $v !== null);
 
-        $data = $this->authenticatedGet('/collections', $query);
+        $response = $this->authenticatedGetPaged('/collections', array_merge(['page' => $page], $filters));
 
-        return Page::fromArray($data, Collection::fromArray(...), 500, $page);
+        return ResultSet::fromPagedResponse($response, Collection::fromArray(...), $page, 500, $filters);
     }
 
     public function get(string $code): Collection

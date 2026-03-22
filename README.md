@@ -18,9 +18,9 @@ $client = new Client(
     clientSecret: 'your_client_secret',
 );
 
-// List products
-$page = $client->products()->list(collection_code: 'SS25');
-foreach ($page->items as $product) {
+// List products (returns ResultSet)
+$result = $client->products()->list(collection_code: 'SS25');
+foreach ($result->data as $product) {
     echo $product->model . ': ' . $product->name . "\n";
 }
 
@@ -61,32 +61,79 @@ All API endpoints are organized into resources accessible from the client:
 
 | Resource | Access | Endpoints |
 |----------|--------|-----------|
-| Products | `$client->products()` | list, get, getVariant, upsert, updateVariant, batchUpsert, paginate |
 | Collections | `$client->collections()` | list, get, upsert, batchUpsert, paginate |
-| Orders | `$client->orders()` | list, get, upsert, updateStatus, archive, paginate |
-| Retailers | `$client->retailers()` | list, get, upsert, batchUpsert, paginate |
-| Prices | `$client->prices()` | list, set, listBySize, setBySize, batchSet, batchSetBySize |
-| Inventory | `$client->inventory()` | list, getByData, setByData, getByEan, setByEan, getBySku, setBySku, batchSet* |
 | Fabrics | `$client->fabrics()` | list, get, upsert, batchUpsert, paginate |
 | Files | `$client->files()` | uploadProductImage, deleteProductImage, uploadFabricImage, deleteFabricImage, uploadSalesDocumentFile, deleteSalesDocumentFile |
-| Sales Documents | `$client->salesDocuments()` | list, get, upsert, listOrders, linkOrder, batchUpsert, paginate |
+| Inventory | `$client->inventory()` | list, getByData, setByData, getByEan, setByEan, getBySku, setBySku, batchSet* |
+| Invoices | `$client->invoices()` | list, get, paginate |
+| Orders | `$client->orders()` | list, get, upsert, updateStatus, archive, paginate |
+| Prices | `$client->prices()` | list, set, listBySize, setBySize, batchSet, batchSetBySize |
+| Products | `$client->products()` | list, get, getVariant, upsert, updateVariant, batchUpsert, paginate |
+| Retailers | `$client->retailers()` | list, get, upsert, batchUpsert, paginate |
 | Sales Catalogs | `$client->salesCatalogs()` | list, get, upsert, listItems, setItem, batchUpsert, batchSetItems, paginate |
+| Sales Documents | `$client->salesDocuments()` | list, get, upsert, listOrders, linkOrder, batchUpsert, paginate |
 | Selections | `$client->selections()` | list, get, upsert, delete, paginate |
 | Sizings | `$client->sizings()` | list, get, upsert, batchUpsert, paginate |
-| Invoices | `$client->invoices()` | list, get, paginate |
 
-## Pagination
+## Result Sets
 
-List endpoints return a `Page` object with 500 items per page:
+All `list()` methods return a `ResultSet<T>` object:
 
 ```php
-// Manual pagination
-$page = $client->products()->list(page: 2);
-echo "Page {$page->page}, has more: " . ($page->hasMore ? 'yes' : 'no') . "\n";
+$result = $client->products()->list(collection_code: 'SS25');
 
-// Auto-pagination (lazy generator)
-foreach ($client->products()->paginate() as $product) {
-    // Automatically fetches next pages
+$result->data;              // T[]  — the items on this page
+$result->metadata->page;       // int  — current page number (1-based)
+$result->metadata->pageSize;   // int  — items per page (500)
+$result->metadata->hasMore;    // bool — whether more pages exist
+$result->metadata->totalPages; // int  — total number of pages
+$result->metadata->totalItems; // int  — total number of items
+$result->metadata->filters;    // array — applied filters (nulls excluded)
+```
+
+`ResultSet` is iterable and countable:
+
+```php
+foreach ($result as $product) { ... }  // iterate items directly
+count($result);                         // number of items on this page
+```
+
+**Non-paginated endpoints** (Inventory, Prices, etc.) also return `ResultSet`, but with all pagination metadata set to `null`:
+
+```php
+$result = $client->inventory()->list();
+$result->metadata->page;    // null — not a paginated endpoint
+$result->metadata->hasMore; // null
+```
+
+### Pagination metadata via response headers
+
+Pagination metadata is populated from response headers sent by the API. The SDK reads the following headers on paginated endpoints:
+
+| Header | Property |
+|--------|----------|
+| `X-Pagination-Current-Page` | `metadata->page` |
+| `X-Pagination-Page-Size` | `metadata->pageSize` |
+| `X-Pagination-Has-More` | `metadata->hasMore` |
+| `X-Pagination-Total-Pages` | `metadata->totalPages` |
+| `X-Pagination-Total-Items` | `metadata->totalItems` |
+
+### Manual pagination
+
+```php
+$result = $client->products()->list(page: 2, collection_code: 'SS25');
+
+echo "Page {$result->metadata->page}\n";
+echo "Has more: " . ($result->metadata->hasMore ? 'yes' : 'no') . "\n";
+echo "Total: {$result->metadata->totalItems} products across {$result->metadata->totalPages} pages\n";
+echo "Filters: " . json_encode($result->metadata->filters) . "\n";
+```
+
+### Auto-pagination (lazy generator)
+
+```php
+foreach ($client->products()->paginate(collection_code: 'SS25') as $product) {
+    // Automatically fetches next pages — memory efficient
 }
 ```
 

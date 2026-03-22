@@ -6,19 +6,19 @@ namespace LeNewBlack\Wholesale\Resource;
 
 use LeNewBlack\Wholesale\Http\Paginator;
 use LeNewBlack\Wholesale\Model\Batch\BatchResponse;
-use LeNewBlack\Wholesale\Model\Page;
+use LeNewBlack\Wholesale\Model\ResultSet;
 use LeNewBlack\Wholesale\Model\Sizing\SetSizingRequest;
 use LeNewBlack\Wholesale\Model\Sizing\Sizing;
 
 final class SizingResource extends AbstractResource
 {
     /**
-     * @return Page<Sizing>
+     * @return ResultSet<Sizing>
      */
-    public function list(int $page = 1): Page
+    public function list(int $page = 1): ResultSet
     {
-        $data = $this->authenticatedGet('/sizings', ['page' => $page]);
-        return Page::fromArray($data, Sizing::fromArray(...), 500, $page);
+        $response = $this->authenticatedGetPaged('/sizings', ['page' => $page]);
+        return ResultSet::fromPagedResponse($response, Sizing::fromArray(...), $page, 500);
     }
 
     public function get(string $code): Sizing

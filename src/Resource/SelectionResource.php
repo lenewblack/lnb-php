@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace LeNewBlack\Wholesale\Resource;
 
 use LeNewBlack\Wholesale\Http\Paginator;
-use LeNewBlack\Wholesale\Model\Page;
+use LeNewBlack\Wholesale\Model\ResultSet;
 use LeNewBlack\Wholesale\Model\Selection\Selection;
 use LeNewBlack\Wholesale\Model\Selection\SetSelectionRequest;
 
 final class SelectionResource extends AbstractResource
 {
     /**
-     * @return Page<Selection>
+     * @return ResultSet<Selection>
      */
-    public function list(int $page = 1): Page
+    public function list(int $page = 1): ResultSet
     {
-        $data = $this->authenticatedGet('/selections', ['page' => $page]);
-        return Page::fromArray($data, Selection::fromArray(...), 500, $page);
+        $response = $this->authenticatedGetPaged('/selections', ['page' => $page]);
+        return ResultSet::fromPagedResponse($response, Selection::fromArray(...), $page, 500);
     }
 
     public function get(int $id): Selection
