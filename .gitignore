@@ -1,0 +1,8 @@
+# OS
+.claude
+.DS_Store
+.idea
+.phpunit.cache
+
+# Build
+vendor
