@@ -9,16 +9,17 @@ use LeNewBlack\Wholesale\Model\Inventory\InventoryDataItem;
 use LeNewBlack\Wholesale\Model\Inventory\InventoryEANItem;
 use LeNewBlack\Wholesale\Model\Inventory\InventoryItem;
 use LeNewBlack\Wholesale\Model\Inventory\InventorySKUItem;
+use LeNewBlack\Wholesale\Model\ResultSet;
 
 final class InventoryResource extends AbstractResource
 {
     /**
-     * @return InventoryItem[]
+     * @return ResultSet<InventoryItem>
      */
-    public function list(): array
+    public function list(): ResultSet
     {
         $data = $this->authenticatedGet('/inventory');
-        return array_map(InventoryItem::fromArray(...), $data);
+        return ResultSet::fromList($data, InventoryItem::fromArray(...));
     }
 
     public function getByData(string $model, string $fabric_code, string $size): InventoryItem

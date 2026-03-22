@@ -7,20 +7,18 @@ namespace LeNewBlack\Wholesale\Resource;
 use LeNewBlack\Wholesale\Model\Batch\BatchResponse;
 use LeNewBlack\Wholesale\Model\Price\Price;
 use LeNewBlack\Wholesale\Model\Price\PriceBySize;
+use LeNewBlack\Wholesale\Model\ResultSet;
 
 final class PriceResource extends AbstractResource
 {
     /**
-     * @return Price[]
+     * @return ResultSet<Price>
      */
-    public function list(string $product_model, string $fabric_code): array
+    public function list(string $product_model, string $fabric_code): ResultSet
     {
-        $data = $this->authenticatedGet('/prices', [
-            'product_model' => $product_model,
-            'fabric_code' => $fabric_code,
-        ]);
-
-        return array_map(Price::fromArray(...), $data);
+        $filters = ['product_model' => $product_model, 'fabric_code' => $fabric_code];
+        $data = $this->authenticatedGet('/prices', $filters);
+        return ResultSet::fromList($data, Price::fromArray(...), $filters);
     }
 
     public function set(Price $price): Price
@@ -30,16 +28,13 @@ final class PriceResource extends AbstractResource
     }
 
     /**
-     * @return PriceBySize[]
+     * @return ResultSet<PriceBySize>
      */
-    public function listBySize(string $product_model, string $fabric_code): array
+    public function listBySize(string $product_model, string $fabric_code): ResultSet
     {
-        $data = $this->authenticatedGet('/prices_by_size', [
-            'product_model' => $product_model,
-            'fabric_code' => $fabric_code,
-        ]);
-
-        return array_map(PriceBySize::fromArray(...), $data);
+        $filters = ['product_model' => $product_model, 'fabric_code' => $fabric_code];
+        $data = $this->authenticatedGet('/prices_by_size', $filters);
+        return ResultSet::fromList($data, PriceBySize::fromArray(...), $filters);
     }
 
     public function setBySize(PriceBySize $price): PriceBySize

@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Response;
 use LeNewBlack\Wholesale\Model\Product\Product;
 use LeNewBlack\Wholesale\Model\Product\SetProductRequest;
 use LeNewBlack\Wholesale\Model\Product\SetVariantRequest;
+use LeNewBlack\Wholesale\Model\ResultSet;
 
 final class ProductResourceTest extends MockHttpTestCase
 {
@@ -22,12 +23,40 @@ final class ProductResourceTest extends MockHttpTestCase
             new Response(200, [], json_encode($products)),
         ]);
 
-        $page = $this->client->products()->list(collection_code: 'SS25');
+        $result = $this->client->products()->list(collection_code: 'SS25');
 
-        $this->assertCount(2, $page->items);
-        $this->assertSame('SS25-001', $page->items[0]->model);
-        $this->assertSame('Shirt', $page->items[1]->name);
-        $this->assertFalse($page->hasMore);
+        $this->assertInstanceOf(ResultSet::class, $result);
+        $this->assertCount(2, $result->data);
+        $this->assertSame('SS25-001', $result->data[0]->model);
+        $this->assertSame('Shirt', $result->data[1]->name);
+        $this->assertSame(1, $result->metadata->page);
+        $this->assertSame(['collection_code' => 'SS25'], $result->metadata->filters);
+        $this->assertNull($result->metadata->hasMore);
+    }
+
+    public function testListProductsWithPaginationHeaders(): void
+    {
+        $products = [
+            ['model' => 'SS25-001', 'name' => 'Jacket', 'variants' => []],
+        ];
+
+        $this->setUpClient([
+            new Response(200, [
+                'X-Pagination-Current-Page' => ['1'],
+                'X-Pagination-Page-Size' => ['500'],
+                'X-Pagination-Has-More' => ['false'],
+                'X-Pagination-Total-Pages' => ['1'],
+                'X-Pagination-Total-Items' => ['1'],
+            ], json_encode($products)),
+        ]);
+
+        $result = $this->client->products()->list();
+
+        $this->assertSame(1, $result->metadata->page);
+        $this->assertSame(500, $result->metadata->pageSize);
+        $this->assertFalse($result->metadata->hasMore);
+        $this->assertSame(1, $result->metadata->totalPages);
+        $this->assertSame(1, $result->metadata->totalItems);
     }
 
     public function testGetProduct(): void

@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Response;
 use LeNewBlack\Wholesale\Model\Inventory\InventoryEANItem;
 use LeNewBlack\Wholesale\Model\Inventory\InventoryItem;
 use LeNewBlack\Wholesale\Model\Inventory\InventorySKUItem;
+use LeNewBlack\Wholesale\Model\ResultSet;
 
 final class InventoryResourceTest extends MockHttpTestCase
 {
@@ -20,12 +21,15 @@ final class InventoryResourceTest extends MockHttpTestCase
             ])),
         ]);
 
-        $items = $this->client->inventory()->list();
+        $result = $this->client->inventory()->list();
 
-        $this->assertCount(2, $items);
-        $this->assertInstanceOf(InventoryItem::class, $items[0]);
-        $this->assertSame(50, $items[0]->in_stock);
-        $this->assertFalse($items[0]->is_blocked);
+        $this->assertInstanceOf(ResultSet::class, $result);
+        $this->assertCount(2, $result->data);
+        $this->assertInstanceOf(InventoryItem::class, $result->data[0]);
+        $this->assertSame(50, $result->data[0]->in_stock);
+        $this->assertFalse($result->data[0]->is_blocked);
+        $this->assertNull($result->metadata->page);
+        $this->assertNull($result->metadata->hasMore);
     }
 
     public function testSetByEan(): void

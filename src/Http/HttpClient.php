@@ -33,37 +33,42 @@ final class HttpClient
 
     public function get(string $path, array $query = []): array
     {
-        return $this->request('GET', $path, ['query' => $query]);
+        return $this->requestResponse('GET', $path, ['query' => $query])->body;
+    }
+
+    public function getWithMeta(string $path, array $query = []): HttpResponse
+    {
+        return $this->requestResponse('GET', $path, ['query' => $query]);
     }
 
     public function post(string $path, array $body, array $query = []): array
     {
-        return $this->request('POST', $path, [
+        return $this->requestResponse('POST', $path, [
             'json' => $body,
             'query' => $query,
-        ]);
+        ])->body;
     }
 
     public function postRaw(string $path, array $body): array
     {
-        return $this->request('POST', $path, ['json' => $body]);
+        return $this->requestResponse('POST', $path, ['json' => $body])->body;
     }
 
     public function delete(string $path, array $query = []): void
     {
-        $this->request('DELETE', $path, ['query' => $query]);
+        $this->requestResponse('DELETE', $path, ['query' => $query]);
     }
 
     public function postMultipart(string $path, array $multipart, array $query = []): array
     {
-        return $this->request('POST', $path, [
+        return $this->requestResponse('POST', $path, [
             'multipart' => $multipart,
             'query' => $query,
             'headers' => ['Content-Type' => null],
-        ]);
+        ])->body;
     }
 
-    private function request(string $method, string $path, array $options): array
+    private function requestResponse(string $method, string $path, array $options): HttpResponse
     {
         $path = ltrim($path, '/');
 
@@ -71,11 +76,10 @@ final class HttpClient
             $response = $this->guzzle->request($method, $path, $options);
             $body = (string) $response->getBody();
 
-            if ($body === '') {
-                return [];
-            }
-
-            return json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+            return new HttpResponse(
+                body: $body === '' ? [] : json_decode($body, true, 512, JSON_THROW_ON_ERROR),
+                headers: $response->getHeaders(),
+            );
         } catch (ClientException $e) {
             $response = $e->getResponse();
             $statusCode = $response->getStatusCode();

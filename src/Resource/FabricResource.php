@@ -8,17 +8,17 @@ use LeNewBlack\Wholesale\Http\Paginator;
 use LeNewBlack\Wholesale\Model\Batch\BatchResponse;
 use LeNewBlack\Wholesale\Model\Fabric\Fabric;
 use LeNewBlack\Wholesale\Model\Fabric\SetFabricRequest;
-use LeNewBlack\Wholesale\Model\Page;
+use LeNewBlack\Wholesale\Model\ResultSet;
 
 final class FabricResource extends AbstractResource
 {
     /**
-     * @return Page<Fabric>
+     * @return ResultSet<Fabric>
      */
-    public function list(int $page = 1): Page
+    public function list(int $page = 1): ResultSet
     {
-        $data = $this->authenticatedGet('/fabrics', ['page' => $page]);
-        return Page::fromArray($data, Fabric::fromArray(...), 500, $page);
+        $response = $this->authenticatedGetPaged('/fabrics', ['page' => $page]);
+        return ResultSet::fromPagedResponse($response, Fabric::fromArray(...), $page, 500);
     }
 
     public function get(string $code): Fabric

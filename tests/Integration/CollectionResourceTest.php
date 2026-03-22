@@ -19,10 +19,10 @@ final class CollectionResourceTest extends MockHttpTestCase
             ])),
         ]);
 
-        $page = $this->client->collections()->list(status: 'order');
+        $result = $this->client->collections()->list(status: 'order');
 
-        $this->assertCount(2, $page->items);
-        $this->assertSame('SS25', $page->items[0]->code);
+        $this->assertCount(2, $result->data);
+        $this->assertSame('SS25', $result->data[0]->code);
     }
 
     public function testGetCollection(): void

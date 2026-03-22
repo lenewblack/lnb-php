@@ -6,7 +6,7 @@ namespace LeNewBlack\Wholesale\Resource;
 
 use LeNewBlack\Wholesale\Http\Paginator;
 use LeNewBlack\Wholesale\Model\Batch\BatchResponse;
-use LeNewBlack\Wholesale\Model\Page;
+use LeNewBlack\Wholesale\Model\ResultSet;
 use LeNewBlack\Wholesale\Model\SalesDocument\SalesDocument;
 use LeNewBlack\Wholesale\Model\SalesDocument\SalesDocumentOrder;
 use LeNewBlack\Wholesale\Model\SalesDocument\SetSalesDocumentOrderRequest;
@@ -15,12 +15,12 @@ use LeNewBlack\Wholesale\Model\SalesDocument\SetSalesDocumentRequest;
 final class SalesDocumentResource extends AbstractResource
 {
     /**
-     * @return Page<SalesDocument>
+     * @return ResultSet<SalesDocument>
      */
-    public function list(int $page = 1): Page
+    public function list(int $page = 1): ResultSet
     {
-        $data = $this->authenticatedGet('/sales_documents', ['page' => $page]);
-        return Page::fromArray($data, SalesDocument::fromArray(...), 500, $page);
+        $response = $this->authenticatedGetPaged('/sales_documents', ['page' => $page]);
+        return ResultSet::fromPagedResponse($response, SalesDocument::fromArray(...), $page, 500);
     }
 
     public function get(string $document_number): SalesDocument
@@ -36,12 +36,12 @@ final class SalesDocumentResource extends AbstractResource
     }
 
     /**
-     * @return SalesDocumentOrder[]
+     * @return ResultSet<SalesDocumentOrder>
      */
-    public function listOrders(): array
+    public function listOrders(): ResultSet
     {
         $data = $this->authenticatedGet('/sales_document_orders');
-        return array_map(SalesDocumentOrder::fromArray(...), $data);
+        return ResultSet::fromList($data, SalesDocumentOrder::fromArray(...));
     }
 
     public function linkOrder(SetSalesDocumentOrderRequest $request): SalesDocumentOrder

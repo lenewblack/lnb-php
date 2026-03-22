@@ -6,7 +6,7 @@ namespace LeNewBlack\Wholesale\Resource;
 
 use LeNewBlack\Wholesale\Http\Paginator;
 use LeNewBlack\Wholesale\Model\Batch\BatchResponse;
-use LeNewBlack\Wholesale\Model\Page;
+use LeNewBlack\Wholesale\Model\ResultSet;
 use LeNewBlack\Wholesale\Model\SalesCatalog\SalesCatalog;
 use LeNewBlack\Wholesale\Model\SalesCatalog\SalesCatalogItem;
 use LeNewBlack\Wholesale\Model\SalesCatalog\SetSalesCatalogItemRequest;
@@ -15,12 +15,12 @@ use LeNewBlack\Wholesale\Model\SalesCatalog\SetSalesCatalogRequest;
 final class SalesCatalogResource extends AbstractResource
 {
     /**
-     * @return Page<SalesCatalog>
+     * @return ResultSet<SalesCatalog>
      */
-    public function list(int $page = 1): Page
+    public function list(int $page = 1): ResultSet
     {
-        $data = $this->authenticatedGet('/sales_catalogs', ['page' => $page]);
-        return Page::fromArray($data, SalesCatalog::fromArray(...), 500, $page);
+        $response = $this->authenticatedGetPaged('/sales_catalogs', ['page' => $page]);
+        return ResultSet::fromPagedResponse($response, SalesCatalog::fromArray(...), $page, 500);
     }
 
     public function get(string $code): SalesCatalog
@@ -36,12 +36,12 @@ final class SalesCatalogResource extends AbstractResource
     }
 
     /**
-     * @return SalesCatalogItem[]
+     * @return ResultSet<SalesCatalogItem>
      */
-    public function listItems(): array
+    public function listItems(): ResultSet
     {
         $data = $this->authenticatedGet('/sales_catalog_items');
-        return array_map(SalesCatalogItem::fromArray(...), $data);
+        return ResultSet::fromList($data, SalesCatalogItem::fromArray(...));
     }
 
     public function setItem(SetSalesCatalogItemRequest $request): SalesCatalogItem

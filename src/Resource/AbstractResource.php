@@ -6,6 +6,7 @@ namespace LeNewBlack\Wholesale\Resource;
 
 use LeNewBlack\Wholesale\Auth\TokenManager;
 use LeNewBlack\Wholesale\Http\HttpClient;
+use LeNewBlack\Wholesale\Http\HttpResponse;
 use LeNewBlack\Wholesale\Model\Batch\BatchResponse;
 
 abstract class AbstractResource
@@ -19,6 +20,12 @@ abstract class AbstractResource
     {
         $query['access_token'] = $this->auth->getToken();
         return $this->http->get($path, $query);
+    }
+
+    protected function authenticatedGetPaged(string $path, array $query = []): HttpResponse
+    {
+        $query['access_token'] = $this->auth->getToken();
+        return $this->http->getWithMeta($path, $query);
     }
 
     protected function authenticatedPost(string $path, array $body, array $query = []): array
