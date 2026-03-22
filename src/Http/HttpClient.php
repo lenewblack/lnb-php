@@ -84,7 +84,8 @@ final class HttpClient
             $response = $e->getResponse();
             $statusCode = $response->getStatusCode();
             $body = json_decode((string) $response->getBody(), true) ?: [];
-            $message = $body['message'] ?? $body['error'] ?? $e->getMessage();
+            $raw = $body['message'] ?? $body['error'] ?? $e->getMessage();
+            $message = is_array($raw) ? implode(', ', $raw) : (string) $raw;
 
             throw match ($statusCode) {
                 401 => new AuthenticationException($message, $statusCode, $body, $e),

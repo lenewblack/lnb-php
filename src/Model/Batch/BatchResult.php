@@ -14,9 +14,20 @@ final class BatchResult
 
     public static function fromArray(array $data): self
     {
+        $raw = $data['errors'] ?? null;
+        if (is_array($raw)) {
+            $parts = [];
+            foreach ($raw as $field => $messages) {
+                $parts[] = $field . ': ' . (is_array($messages) ? implode(', ', $messages) : $messages);
+            }
+            $errors = implode('; ', $parts);
+        } else {
+            $errors = $raw;
+        }
+
         return new self(
             status: $data['status'] ?? 'error',
-            errors: $data['errors'] ?? null,
+            errors: $errors,
             result: $data['result'] ?? null,
         );
     }
