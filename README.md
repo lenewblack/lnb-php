@@ -55,6 +55,13 @@ $request = (new SetProductRequest())
 $product = $client->products()->upsert($request);
 ```
 
+## Authentication
+
+Authentication is fully managed. The SDK automatically:
+- Fetches a token on the first API call
+- Caches the token for its validity period
+- Refreshes the token before it expires (60s buffer)
+
 ## Resources
 
 All API endpoints are organized into resources accessible from the client:
@@ -156,13 +163,6 @@ foreach ($response->results as $result) {
     }
 }
 ```
-
-## Authentication
-
-Authentication is fully managed. The SDK automatically:
-- Fetches a token on the first API call
-- Caches the token for its validity period
-- Refreshes the token before it expires (60s buffer)
 
 ## Error Handling
 
