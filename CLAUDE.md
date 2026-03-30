@@ -2,7 +2,7 @@
 
 ## Project
 
-PHP SDK for the Le New Black Wholesale v2 API. Published at `lenewblack/lnb-php`.
+PHP SDK for the Le New Black Wholesale v2 API. Published at [lenewblack/lnb-php](https://github.com/lenewblack/lnb-php).
 
 - PHP >= 8.1, Guzzle ^7.0
 - Tests: PHPUnit 10, split into `tests/Unit` and `tests/Integration`
