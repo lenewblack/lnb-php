@@ -15,15 +15,23 @@ final class FabricResource extends AbstractResource
     /**
      * @return ResultSet<Fabric>
      */
-    public function list(int $page = 1): ResultSet
-    {
-        $response = $this->authenticatedGetPaged('/fabrics', ['page' => $page]);
-        return ResultSet::fromPagedResponse($response, Fabric::fromArray(...), $page, 500);
+    public function list(
+        int $page = 1,
+        ?string $name = null,
+        ?string $code = null,
+    ): ResultSet {
+        $filters = array_filter([
+            'name' => $name,
+            'code' => $code,
+        ], fn ($v) => $v !== null);
+
+        $response = $this->authenticatedGetPaged('/fabrics', array_merge(['page' => $page], $filters));
+        return ResultSet::fromPagedResponse($response, Fabric::fromArray(...), $page, 500, $filters);
     }
 
     public function get(string $code): Fabric
     {
-        $data = $this->authenticatedGet("/fabrics/{$code}");
+        $data = $this->authenticatedGet('/fabrics/' . rawurlencode($code));
         return Fabric::fromArray($data);
     }
 
@@ -45,8 +53,10 @@ final class FabricResource extends AbstractResource
     /**
      * @return \Generator<Fabric>
      */
-    public function paginate(): \Generator
-    {
-        return Paginator::paginate(fn(int $page) => $this->list($page));
+    public function paginate(
+        ?string $name = null,
+        ?string $code = null,
+    ): \Generator {
+        return Paginator::paginate(fn(int $page) => $this->list($page, $name, $code));
     }
 }

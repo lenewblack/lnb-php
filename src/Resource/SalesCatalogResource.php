@@ -17,15 +17,28 @@ final class SalesCatalogResource extends AbstractResource
     /**
      * @return ResultSet<SalesCatalog>
      */
-    public function list(int $page = 1): ResultSet
-    {
-        $response = $this->authenticatedGetPaged('/sales_catalogs', ['page' => $page]);
-        return ResultSet::fromPagedResponse($response, SalesCatalog::fromArray(...), $page, 500);
+    public function list(
+        int $page = 1,
+        ?string $name = null,
+        ?string $code = null,
+        ?string $status = null,
+        ?string $season = null,
+    ): ResultSet {
+        $filters = array_filter([
+            'name' => $name,
+            'code' => $code,
+            'status' => $status,
+            'season' => $season,
+        ], fn ($v) => $v !== null);
+
+        $response = $this->authenticatedGetPaged('/sales_catalogs', array_merge(['page' => $page], $filters));
+
+        return ResultSet::fromPagedResponse($response, SalesCatalog::fromArray(...), $page, 500, $filters);
     }
 
     public function get(string $code): SalesCatalog
     {
-        $data = $this->authenticatedGet("/sales_catalogs/{$code}");
+        $data = $this->authenticatedGet('/sales_catalogs/' . rawurlencode($code));
         return SalesCatalog::fromArray($data);
     }
 
@@ -38,10 +51,11 @@ final class SalesCatalogResource extends AbstractResource
     /**
      * @return ResultSet<SalesCatalogItem>
      */
-    public function listItems(): ResultSet
+    public function listItems(string $sales_catalog_code): ResultSet
     {
-        $data = $this->authenticatedGet('/sales_catalog_items');
-        return ResultSet::fromList($data, SalesCatalogItem::fromArray(...));
+        $filters = ['sales_catalog_code' => $sales_catalog_code];
+        $data = $this->authenticatedGet('/sales_catalog_items', $filters);
+        return ResultSet::fromList($data, SalesCatalogItem::fromArray(...), $filters);
     }
 
     public function setItem(SetSalesCatalogItemRequest $request): SalesCatalogItem
@@ -71,8 +85,14 @@ final class SalesCatalogResource extends AbstractResource
     /**
      * @return \Generator<SalesCatalog>
      */
-    public function paginate(): \Generator
-    {
-        return Paginator::paginate(fn(int $page) => $this->list($page));
+    public function paginate(
+        ?string $name = null,
+        ?string $code = null,
+        ?string $status = null,
+        ?string $season = null,
+    ): \Generator {
+        return Paginator::paginate(
+            fn(int $page) => $this->list($page, $name, $code, $status, $season)
+        );
     }
 }
