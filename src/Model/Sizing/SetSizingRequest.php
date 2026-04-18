@@ -29,6 +29,36 @@ final class SetSizingRequest
     private ?string $size_18 = null;
     private ?string $size_19 = null;
     private ?string $size_20 = null;
+    private ?string $size_21 = null;
+    private ?string $size_22 = null;
+    private ?string $size_23 = null;
+    private ?string $size_24 = null;
+    private ?string $size_25 = null;
+    private ?string $size_26 = null;
+    private ?string $size_27 = null;
+    private ?string $size_28 = null;
+    private ?string $size_29 = null;
+    private ?string $size_30 = null;
+    private ?string $size_31 = null;
+    private ?string $size_32 = null;
+    private ?string $size_33 = null;
+    private ?string $size_34 = null;
+    private ?string $size_35 = null;
+    private ?string $size_36 = null;
+    private ?string $size_37 = null;
+    private ?string $size_38 = null;
+    private ?string $size_39 = null;
+    private ?string $size_40 = null;
+    private ?string $size_41 = null;
+    private ?string $size_42 = null;
+    private ?string $size_43 = null;
+    private ?string $size_44 = null;
+    private ?string $size_45 = null;
+    private ?string $size_46 = null;
+    private ?string $size_47 = null;
+    private ?string $size_48 = null;
+    private ?string $size_49 = null;
+    private ?string $size_50 = null;
 
     public function setCode(string $code): self { $this->code = $code; return $this; }
     public function setName(string $name): self { $this->name = $name; return $this; }
@@ -53,33 +83,51 @@ final class SetSizingRequest
     public function setSize18(?string $size_18): self { $this->size_18 = $size_18; return $this; }
     public function setSize19(?string $size_19): self { $this->size_19 = $size_19; return $this; }
     public function setSize20(?string $size_20): self { $this->size_20 = $size_20; return $this; }
+    public function setSize21(?string $size_21): self { $this->size_21 = $size_21; return $this; }
+    public function setSize22(?string $size_22): self { $this->size_22 = $size_22; return $this; }
+    public function setSize23(?string $size_23): self { $this->size_23 = $size_23; return $this; }
+    public function setSize24(?string $size_24): self { $this->size_24 = $size_24; return $this; }
+    public function setSize25(?string $size_25): self { $this->size_25 = $size_25; return $this; }
+    public function setSize26(?string $size_26): self { $this->size_26 = $size_26; return $this; }
+    public function setSize27(?string $size_27): self { $this->size_27 = $size_27; return $this; }
+    public function setSize28(?string $size_28): self { $this->size_28 = $size_28; return $this; }
+    public function setSize29(?string $size_29): self { $this->size_29 = $size_29; return $this; }
+    public function setSize30(?string $size_30): self { $this->size_30 = $size_30; return $this; }
+    public function setSize31(?string $size_31): self { $this->size_31 = $size_31; return $this; }
+    public function setSize32(?string $size_32): self { $this->size_32 = $size_32; return $this; }
+    public function setSize33(?string $size_33): self { $this->size_33 = $size_33; return $this; }
+    public function setSize34(?string $size_34): self { $this->size_34 = $size_34; return $this; }
+    public function setSize35(?string $size_35): self { $this->size_35 = $size_35; return $this; }
+    public function setSize36(?string $size_36): self { $this->size_36 = $size_36; return $this; }
+    public function setSize37(?string $size_37): self { $this->size_37 = $size_37; return $this; }
+    public function setSize38(?string $size_38): self { $this->size_38 = $size_38; return $this; }
+    public function setSize39(?string $size_39): self { $this->size_39 = $size_39; return $this; }
+    public function setSize40(?string $size_40): self { $this->size_40 = $size_40; return $this; }
+    public function setSize41(?string $size_41): self { $this->size_41 = $size_41; return $this; }
+    public function setSize42(?string $size_42): self { $this->size_42 = $size_42; return $this; }
+    public function setSize43(?string $size_43): self { $this->size_43 = $size_43; return $this; }
+    public function setSize44(?string $size_44): self { $this->size_44 = $size_44; return $this; }
+    public function setSize45(?string $size_45): self { $this->size_45 = $size_45; return $this; }
+    public function setSize46(?string $size_46): self { $this->size_46 = $size_46; return $this; }
+    public function setSize47(?string $size_47): self { $this->size_47 = $size_47; return $this; }
+    public function setSize48(?string $size_48): self { $this->size_48 = $size_48; return $this; }
+    public function setSize49(?string $size_49): self { $this->size_49 = $size_49; return $this; }
+    public function setSize50(?string $size_50): self { $this->size_50 = $size_50; return $this; }
 
     public function toArray(): array
     {
-        return array_filter([
+        $out = [
             'code' => $this->code,
             'name' => $this->name,
             'description' => $this->description,
             'size_1' => $this->size_1,
-            'size_2' => $this->size_2,
-            'size_3' => $this->size_3,
-            'size_4' => $this->size_4,
-            'size_5' => $this->size_5,
-            'size_6' => $this->size_6,
-            'size_7' => $this->size_7,
-            'size_8' => $this->size_8,
-            'size_9' => $this->size_9,
-            'size_10' => $this->size_10,
-            'size_11' => $this->size_11,
-            'size_12' => $this->size_12,
-            'size_13' => $this->size_13,
-            'size_14' => $this->size_14,
-            'size_15' => $this->size_15,
-            'size_16' => $this->size_16,
-            'size_17' => $this->size_17,
-            'size_18' => $this->size_18,
-            'size_19' => $this->size_19,
-            'size_20' => $this->size_20,
-        ], fn ($v) => $v !== null);
+        ];
+
+        for ($i = 2; $i <= 50; $i++) {
+            $prop = 'size_' . $i;
+            $out[$prop] = $this->{$prop};
+        }
+
+        return array_filter($out, fn ($v) => $v !== null);
     }
 }

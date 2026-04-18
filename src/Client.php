@@ -23,7 +23,7 @@ use LeNewBlack\Wholesale\Resource\SizingResource;
 
 final class Client
 {
-    public const VERSION = '1.0.0';
+    public const VERSION = '1.1.0';
 
     private readonly HttpClient $http;
     private readonly TokenManager $auth;

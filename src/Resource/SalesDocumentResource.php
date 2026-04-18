@@ -17,15 +17,28 @@ final class SalesDocumentResource extends AbstractResource
     /**
      * @return ResultSet<SalesDocument>
      */
-    public function list(int $page = 1): ResultSet
-    {
-        $response = $this->authenticatedGetPaged('/sales_documents', ['page' => $page]);
-        return ResultSet::fromPagedResponse($response, SalesDocument::fromArray(...), $page, 500);
+    public function list(
+        int $page = 1,
+        ?string $name = null,
+        ?string $document_number = null,
+        ?string $category = null,
+        ?string $type = null,
+    ): ResultSet {
+        $filters = array_filter([
+            'name' => $name,
+            'document_number' => $document_number,
+            'category' => $category,
+            'type' => $type,
+        ], fn ($v) => $v !== null);
+
+        $response = $this->authenticatedGetPaged('/sales_documents', array_merge(['page' => $page], $filters));
+
+        return ResultSet::fromPagedResponse($response, SalesDocument::fromArray(...), $page, 500, $filters);
     }
 
     public function get(string $document_number): SalesDocument
     {
-        $data = $this->authenticatedGet("/sales_documents/{$document_number}");
+        $data = $this->authenticatedGet('/sales_documents/' . rawurlencode($document_number));
         return SalesDocument::fromArray($data);
     }
 
@@ -38,10 +51,11 @@ final class SalesDocumentResource extends AbstractResource
     /**
      * @return ResultSet<SalesDocumentOrder>
      */
-    public function listOrders(): ResultSet
+    public function listOrders(string $sales_document_number): ResultSet
     {
-        $data = $this->authenticatedGet('/sales_document_orders');
-        return ResultSet::fromList($data, SalesDocumentOrder::fromArray(...));
+        $filters = ['sales_document_number' => $sales_document_number];
+        $data = $this->authenticatedGet('/sales_document_orders', $filters);
+        return ResultSet::fromList($data, SalesDocumentOrder::fromArray(...), $filters);
     }
 
     public function linkOrder(SetSalesDocumentOrderRequest $request): SalesDocumentOrder
@@ -71,8 +85,14 @@ final class SalesDocumentResource extends AbstractResource
     /**
      * @return \Generator<SalesDocument>
      */
-    public function paginate(): \Generator
-    {
-        return Paginator::paginate(fn(int $page) => $this->list($page));
+    public function paginate(
+        ?string $name = null,
+        ?string $document_number = null,
+        ?string $category = null,
+        ?string $type = null,
+    ): \Generator {
+        return Paginator::paginate(
+            fn(int $page) => $this->list($page, $name, $document_number, $category, $type)
+        );
     }
 }

@@ -14,9 +14,12 @@ final class PriceResource extends AbstractResource
     /**
      * @return ResultSet<Price>
      */
-    public function list(string $product_model, string $fabric_code): ResultSet
+    public function list(?string $product_model = null): ResultSet
     {
-        $filters = ['product_model' => $product_model, 'fabric_code' => $fabric_code];
+        $filters = array_filter([
+            'product_model' => $product_model,
+        ], fn ($v) => $v !== null);
+
         $data = $this->authenticatedGet('/prices', $filters);
         return ResultSet::fromList($data, Price::fromArray(...), $filters);
     }
@@ -30,9 +33,12 @@ final class PriceResource extends AbstractResource
     /**
      * @return ResultSet<PriceBySize>
      */
-    public function listBySize(string $product_model, string $fabric_code): ResultSet
+    public function listBySize(?string $product_model = null): ResultSet
     {
-        $filters = ['product_model' => $product_model, 'fabric_code' => $fabric_code];
+        $filters = array_filter([
+            'product_model' => $product_model,
+        ], fn ($v) => $v !== null);
+
         $data = $this->authenticatedGet('/prices_by_size', $filters);
         return ResultSet::fromList($data, PriceBySize::fromArray(...), $filters);
     }

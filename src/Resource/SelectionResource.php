@@ -14,10 +14,20 @@ final class SelectionResource extends AbstractResource
     /**
      * @return ResultSet<Selection>
      */
-    public function list(int $page = 1): ResultSet
-    {
-        $response = $this->authenticatedGetPaged('/selections', ['page' => $page]);
-        return ResultSet::fromPagedResponse($response, Selection::fromArray(...), $page, 500);
+    public function list(
+        int $page = 1,
+        ?string $create_time_from = null,
+        ?string $create_time_to = null,
+        ?string $status = null,
+    ): ResultSet {
+        $filters = array_filter([
+            'create_time_from' => $create_time_from,
+            'create_time_to' => $create_time_to,
+            'status' => $status,
+        ], fn ($v) => $v !== null);
+
+        $response = $this->authenticatedGetPaged('/selections', array_merge(['page' => $page], $filters));
+        return ResultSet::fromPagedResponse($response, Selection::fromArray(...), $page, 500, $filters);
     }
 
     public function get(int $id): Selection
@@ -40,8 +50,11 @@ final class SelectionResource extends AbstractResource
     /**
      * @return \Generator<Selection>
      */
-    public function paginate(): \Generator
-    {
-        return Paginator::paginate(fn(int $page) => $this->list($page));
+    public function paginate(
+        ?string $create_time_from = null,
+        ?string $create_time_to = null,
+        ?string $status = null,
+    ): \Generator {
+        return Paginator::paginate(fn(int $page) => $this->list($page, $create_time_from, $create_time_to, $status));
     }
 }

@@ -15,15 +15,23 @@ final class SizingResource extends AbstractResource
     /**
      * @return ResultSet<Sizing>
      */
-    public function list(int $page = 1): ResultSet
-    {
-        $response = $this->authenticatedGetPaged('/sizings', ['page' => $page]);
-        return ResultSet::fromPagedResponse($response, Sizing::fromArray(...), $page, 500);
+    public function list(
+        int $page = 1,
+        ?string $code = null,
+        ?string $name = null,
+    ): ResultSet {
+        $filters = array_filter([
+            'code' => $code,
+            'name' => $name,
+        ], fn ($v) => $v !== null);
+
+        $response = $this->authenticatedGetPaged('/sizings', array_merge(['page' => $page], $filters));
+        return ResultSet::fromPagedResponse($response, Sizing::fromArray(...), $page, 500, $filters);
     }
 
     public function get(string $code): Sizing
     {
-        $data = $this->authenticatedGet("/sizings/{$code}");
+        $data = $this->authenticatedGet('/sizings/' . rawurlencode($code));
         return Sizing::fromArray($data);
     }
 
@@ -45,8 +53,10 @@ final class SizingResource extends AbstractResource
     /**
      * @return \Generator<Sizing>
      */
-    public function paginate(): \Generator
-    {
-        return Paginator::paginate(fn(int $page) => $this->list($page));
+    public function paginate(
+        ?string $code = null,
+        ?string $name = null,
+    ): \Generator {
+        return Paginator::paginate(fn(int $page) => $this->list($page, $code, $name));
     }
 }
