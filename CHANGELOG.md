@@ -5,13 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2026-04-18
+## [1.1.0] - 2026-04-18
 
 Review against the upstream `swagger-api-wholesale-v2.json` (API v2.22.0) uncovered several endpoints the SDK was calling incorrectly and a number of filters the SDK omitted. This release aligns the SDK with the spec.
 
 ### Fixed
 
-- `SalesCatalogResource::listItems()` now requires `sales_catalog_code` (the spec marks it as a required query param — calls without it were failing).
+- `SalesCatalogResource::listItems()` now requires `sales_catalog_code` (the spec marks it as a required query param — calls without it were failing with 422).
 - `SalesDocumentResource::listOrders()` now requires `sales_document_number` (same reason).
 - `PriceResource::list()` and `PriceResource::listBySize()` no longer send the unsupported `fabric_code` filter. `product_model` is now optional, matching the spec.
 - `ProductResource::updateVariant()` now takes `SetVariantRequest` (was incorrectly typed as `SetVariantAltRequest`, which targets a different endpoint).
@@ -30,13 +30,16 @@ Review against the upstream `swagger-api-wholesale-v2.json` (API v2.22.0) uncove
 - `SalesDocumentResource::list()` / `paginate()` gained `name`, `document_number`, `category`, and `type` filters.
 - `SelectionResource::list()` / `paginate()` gained `create_time_from`, `create_time_to`, and `status` filters.
 
-### Breaking changes
+### Notes on signature changes
 
-- `PriceResource::list()` / `listBySize()`: signature changed from `(string $product_model, string $fabric_code)` to `(?string $product_model = null)`.
-- `SalesCatalogResource::listItems()`: signature changed from `()` to `(string $sales_catalog_code)`.
-- `SalesDocumentResource::listOrders()`: signature changed from `()` to `(string $sales_document_number)`.
-- `ProductResource::updateVariant()`: payload type changed from `SetVariantAltRequest` to `SetVariantRequest`.
-- `ProductResource::setVariantAlternatives(array)` → `setVariantAlternative(SetVariantAltRequest)`, return type `array` → `VariantExtended`.
+These fixes change the signatures of a few methods. Strictly speaking each is a backwards-incompatible API change, but in every case the old signature could not successfully call the API (the calls would 422 or hit the wrong endpoint), so no working caller is affected:
+
+- `PriceResource::list(string, string)` → `list(?string = null)`
+- `PriceResource::listBySize(string, string)` → `listBySize(?string = null)`
+- `SalesCatalogResource::listItems()` → `listItems(string $sales_catalog_code)`
+- `SalesDocumentResource::listOrders()` → `listOrders(string $sales_document_number)`
+- `ProductResource::updateVariant(..., SetVariantAltRequest)` → `updateVariant(..., SetVariantRequest)`
+- `ProductResource::setVariantAlternatives(array)` → `setVariantAlternative(SetVariantAltRequest): VariantExtended`
 
 ## [1.0.0] - 2026-03-23
 
@@ -51,5 +54,5 @@ Review against the upstream `swagger-api-wholesale-v2.json` (API v2.22.0) uncove
 - Fix: correct body parsing in HTTP client
 - Fix: batch result flattening
 
-[2.0.0]: https://github.com/lenewblack/lnb-php/releases/tag/v2.0.0
+[1.1.0]: https://github.com/lenewblack/lnb-php/releases/tag/v1.1.0
 [1.0.0]: https://github.com/lenewblack/lnb-php/releases/tag/v1.0.0
